@@ -62,6 +62,10 @@ jobs:
         with:
           repository: rust-lang/rust
           submodules: recursive
+      - name: Set merge identity
+        run: |
+          git config --global user.name github-actions
+          git config --global user.email github-actions@users.noreply.github.com
       - name: Checkout PRs and merge
         run: |
           for PR in $PRS; do
