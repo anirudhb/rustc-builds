@@ -40,7 +40,7 @@ jobs:
       - name: Get PR numbers
         id: pr-numbers
         run: |
-          if "$(echo "$COMMENT_COMMAND" | grep -vq '?builder prs')"; then
+          if "$(echo "$COMMENT_COMMAND" | grep -q '?builder prs')"; then
             # extract prs from here
             PRS="$(echo "$COMMENT_COMMAND" | sed -e 's/^(\?builder prs )([\d ]+)$/\2/g; t; Q6')"
             [ $? -eq 6 ] && exit 3
