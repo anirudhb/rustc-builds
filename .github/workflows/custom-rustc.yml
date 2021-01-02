@@ -59,8 +59,9 @@ jobs:
 
       - name: Checkout rustc
         uses: actions/checkout@v2
-        repository: rust-lang/rust
-        submodules: recursive
+        with:
+          repository: rust-lang/rust
+          submodules: recursive
       - name: Checkout PRs and merge
         run: |
           for PR in "$PRS"; do
