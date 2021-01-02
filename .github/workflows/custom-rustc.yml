@@ -40,11 +40,11 @@ jobs:
       - name: Get PR numbers
         id: pr-numbers
         run: |
-          if "$(echo "$COMMENT_COMMAND" | grep -q '?builder prs')"; then
+          if echo "$COMMENT_COMMAND" | grep -q '?builder prs'; then
             # extract prs from here
             PRS="$(echo "$COMMENT_COMMAND" | sed -re 's/^(\?builder prs )(.*)$/\2/g; t; Q6')"
             [ $? -eq 6 ] && exit 3
-          elif "$(echo "$COMMENT_COMMAND" | grep -q '?builder retry')"; then
+          elif echo "$COMMENT_COMMAND" | grep -q '?builder retry'; then
             # extract prs from issue
             PRS="$(echo "$ISSUE_COMMAND" | sed -re 's/^(\?builder prs )(.*)$/\2/g; t; Q6')"
             [ $? -eq 6 ] && exit 3
