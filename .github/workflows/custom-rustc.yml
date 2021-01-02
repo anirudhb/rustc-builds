@@ -42,11 +42,11 @@ jobs:
         run: |
           if "$(echo "$COMMENT_COMMAND" | grep -q '?builder prs')"; then
             # extract prs from here
-            PRS="$(echo "$COMMENT_COMMAND" | sed -e 's/^(\?builder prs )(.*)$/\2/g; t; Q6')"
+            PRS="$(echo "$COMMENT_COMMAND" | sed -re 's/^(\?builder prs )(.*)$/\2/g; t; Q6')"
             [ $? -eq 6 ] && exit 3
           elif "$(echo "$COMMENT_COMMAND" | grep -q '?builder retry')"; then
             # extract prs from issue
-            PRS="$(echo "$ISSUE_COMMAND" | sed -e 's/^(\?builder prs )(.*)$/\2/g; t; Q6')"
+            PRS="$(echo "$ISSUE_COMMAND" | sed -re 's/^(\?builder prs )(.*)$/\2/g; t; Q6')"
             [ $? -eq 6 ] && exit 3
           else
             echo "INVALID COMMAND IN COMMENT! GOT $COMMENT_COMMAND"
