@@ -95,7 +95,7 @@ jobs:
           cp config.toml.example config.toml
           mkdir prefix
           export PREFIX="$PWD/prefix"
-          ./x.py build && ./x.py install
+          ./x.py build --stage=2 && ./x.py install
       - name: Add comment on issue
         uses: actions-ecosystem/action-create-comment@v1
         with:
