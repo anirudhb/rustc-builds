@@ -89,7 +89,7 @@ jobs:
           PRS: ${{ steps.pr-numbers.outputs.numbers }}
       - name: Install packages
         run: |
-          sudo apt-get -y install build-essential g++ make cmake python3 ninja curl git libssl-dev pkg-config
+          sudo apt-get -y install build-essential g++ make cmake python3 ninja-build curl git libssl-dev pkg-config
       - name: Build rustc
         run: |
           cp config.toml.example config.toml
