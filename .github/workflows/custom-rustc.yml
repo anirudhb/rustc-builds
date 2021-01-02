@@ -66,7 +66,7 @@ jobs:
         run: |
           for PR in $PRS; do
             echo "==> Checking out #$PR"
-            git fetch --depth=1 origin pull/$PR/head:pr/$PR
+            git fetch --shallow-since=master origin pull/$PR/head:pr/$PR
             echo "==> Merging #$PR"
             if git merge pr/$PR; then
               echo "==> Merge success!"
