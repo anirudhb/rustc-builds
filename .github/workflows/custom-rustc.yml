@@ -24,7 +24,7 @@ jobs:
       - name: Validate and extract comment contents
         id: comment-content
         run: |
-          CONTENT="$(echo "$COMMENT_CONTENT" | grep -q '?builder')"
+          CONTENT="$(echo "$COMMENT_CONTENT" | grep '?builder')"
           [ $? -ne 0 ] && exit 3
           echo "::set-output name=content::$CONTENT"
         env:
@@ -32,7 +32,7 @@ jobs:
       - name: Retrieve original issue contents
         id: issue-content
         run: |
-          CONTENT="$(echo "$ISSUE_CONTENT" | grep -q '?builder')"
+          CONTENT="$(echo "$ISSUE_CONTENT" | grep '?builder')"
           [ $? -ne 0 ] && exit 3
           echo "::set-output name=content::$CONTENT"
         env:
