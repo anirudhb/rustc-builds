@@ -1,0 +1,99 @@
+name: Build custom rustc
+
+# Run this workflow every time a new commit pushed to your repository
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  custom-rustc:
+    # Name the Job
+    name: Build custom rustc
+    # Set the type of machine to run on
+    runs-on: ubuntu-latest
+    # Only run on issues
+    if: ${{ !github.event.issue.pull_request }}
+
+    steps:
+      - name: Validate comment author
+        run: |
+          [ "$COMMENT_AUTHOR" = "$ISSUE_AUTHOR" ] || exit 5
+        env:
+          COMMENT_AUTHOR: ${{ github.event.comment.user.login }}
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+      - name: Validate and extract comment contents
+        id: comment-content
+        run: |
+          CONTENT="$(echo "$COMMENT_CONTENT" | grep -q '?builder')"
+          [ $? -ne 0 ] && exit 3
+          echo "::set-output name=content::$CONTENT"
+        env:
+          COMMENT_CONTENT: ${{ github.event.comment.body }}
+      - name: Retrieve original issue contents
+        id: issue-content
+        run: |
+          CONTENT="$(echo "$ISSUE_CONTENT" | grep -q '?builder')"
+          [ $? -ne 0 ] && exit 3
+          echo "::set-output name=content::$CONTENT"
+        env:
+          ISSUE_CONTENT: ${{ github.event.issue.body }}
+      - name: Get PR numbers
+        id: pr-numbers
+        run: |
+          if "$(echo "$COMMENT_COMMAND" | grep -vq '?builder prs')"; then
+            # extract prs from here
+            PRS="$(echo "$COMMENT_COMMAND" | sed -e 's/^(\?builder prs )([\d ]+)$/\2/g; t; Q6')"
+            [ $? -eq 6 ] && exit 3
+          elif "$(echo "$COMMENT_COMMAND" | grep -q '?builder retry')"; then
+            # extract prs from issue
+            PRS="$(echo "$ISSUE_COMMAND" | sed -e 's/^(\?builder prs )([\d ]+)$/\2/g; t; Q6')"
+            [ $? -eq 6 ] && exit 3
+          else
+            echo "INVALID COMMAND IN COMMENT! GOT $COMMENT_COMMAND"
+            exit 6
+          fi
+          echo "::set-output name=numbers::$PRS"
+        env:
+          COMMENT_COMMAND: ${{ steps.comment-content.outputs.content }}
+          ISSUE_COMMAND: ${{ steps.issue-content.outputs.content }}
+
+      - name: Checkout rustc
+        uses: actions/checkout@v2
+        repository: rust-lang/rust
+        submodules: recursive
+      - name: Checkout PRs and merge
+        run: |
+          for PR in "$PRS"; do
+            echo "==> Checking out #$PR"
+            git fetch pulls/$PR/head:pr/$PR
+            echo "==> Merging #$PR"
+            if git merge pr/$PR; then
+              echo "==> Merge success!"
+            else
+              echo "==> Merge failed"
+              exit 5
+            fi
+          done
+        env:
+          PRS: ${{ steps.pr-numbers.outputs.numbers }}
+      - name: Install packages
+        run: |
+          sudo apt-get -y install build-essential g++ make cmake python3 ninja curl git libssl-dev pkg-config
+      - name: Build rustc
+        run: |
+          cp config.toml.example config.toml
+          mkdir prefix
+          export PREFIX="$PWD/prefix"
+          ./x.py build && ./x.py install
+      - name: Add comment on issue
+        uses: actions-ecosystem/action-create-comment@v1
+        with:
+          github_token: ${{ secrets.github_token }}
+          body: |
+            Your custom rustc build with PRs `${{ steps.pr-numbers.outputs.numbers }}` has been created,
+            and is available from the artifacts [here](https://github.com/${{ github.repository }}/runs/${{ github.run_id }}).
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: rustc-ubuntu-latest
+          path: prefix
