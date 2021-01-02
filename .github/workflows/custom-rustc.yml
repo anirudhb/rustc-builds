@@ -64,7 +64,7 @@ jobs:
           submodules: recursive
       - name: Checkout PRs and merge
         run: |
-          for PR in "$PRS"; do
+          for PR in $PRS; do
             echo "==> Checking out #$PR"
             git fetch origin pull/$PR/head:pr/$PR
             echo "==> Merging #$PR"
