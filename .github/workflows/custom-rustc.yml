@@ -99,7 +99,7 @@ jobs:
           cp rustc-builds/config.toml .
           mkdir prefix
           export PREFIX="$PWD/prefix"
-          ./x.py build --stage=2 && ./x.py install
+          python3 x.py build --stage=2 && python3 x.py install
       - name: Add comment on issue
         uses: actions-ecosystem/action-create-comment@v1
         with:
