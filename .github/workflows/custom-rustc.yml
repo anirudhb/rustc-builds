@@ -105,7 +105,7 @@ jobs:
           github_token: ${{ secrets.github_token }}
           body: |
             Your custom rustc build with PRs `${{ steps.pr-numbers.outputs.numbers }}` has been created,
-            and is available from the artifacts [here](https://github.com/${{ github.repository }}/runs/${{ github.run_id }}).
+            and is available from the artifacts [here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
