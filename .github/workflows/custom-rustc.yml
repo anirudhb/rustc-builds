@@ -96,10 +96,9 @@ jobs:
           sudo apt-get -y install build-essential g++ make cmake python3 ninja-build curl git libssl-dev pkg-config
       - name: Build rustc
         run: |
-          cp rustc-builds/config.toml .
           mkdir prefix
-          export PREFIX="$PWD/prefix"
-          python3 x.py build --stage=2 && python3 x.py install
+          sed -e "s#||PREFIX||#$PWD/prefix#g" <rustc-builds/config.toml >config.toml
+          python3 x.py build --stage=2 compiler/rustc && python3 x.py install
       - name: Add comment on issue
         uses: actions-ecosystem/action-create-comment@v1
         with:
